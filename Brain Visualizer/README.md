@@ -1,5 +1,5 @@
 # Project Title
-Real time Brain viisualizer
+Real time Brain visualizer
 
 # Project Description
 We will first process data with python and clean it. After we process it we will visualize it using sfml in c++. The aim of this project is to visualize in a 2d 10-20 system. 
