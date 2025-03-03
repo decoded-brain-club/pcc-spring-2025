@@ -2,3 +2,7 @@
 /Brain Visualizer/BrainViz/cmake-build-minsizerel/
 /Brain Visualizer/BrainViz/cmake-build-release/
 /Brain Visualizer/BrainViz/cmake-build-relwithdebinfo/
+/Brain Visualizer/
+/Signal Processing Techniques/
+.gitignore/
+.vscode/
