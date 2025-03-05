@@ -1,10 +1,10 @@
 #pragma once
 
-#include "data/interface.hpp"
 #include <expected>
 #include <simdjson.h>
 #include <string>
-#include <fstream>
+
+#include <data/interface.hpp>
 
 namespace brainviz
 {

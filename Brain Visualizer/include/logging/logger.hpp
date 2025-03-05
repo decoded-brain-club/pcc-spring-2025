@@ -15,7 +15,8 @@
 
 enum class LogLevel : uint8_t { Trace, Debug, Info, Warn, Error, Fatal };
 
-constexpr std::string_view level_to_string(LogLevel level) {
+constexpr std::string_view level_to_string(LogLevel level)
+{
     static constexpr std::array<std::string_view, 6> level_strings = {
         "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL"
     };
@@ -23,33 +24,53 @@ constexpr std::string_view level_to_string(LogLevel level) {
     return level_strings[index];
 }
 
-struct Sink {
-    std::move_only_function<void(std::string_view)> writer;
+struct Sink
+{
+    std::function<void(std::string_view)> writer; // mildly unfortunate... mac doesnt have move_only_function :heart_broken:
     std::string format;
     LogLevel level;
 
     template<typename T>
-    Sink(T&& impl, std::string fmt, LogLevel lvl)
+    Sink(T&& impl, std::string fmt, const LogLevel lvl)
         : format(std::move(fmt)),
           level(lvl),
-          writer([impl = std::forward<T>(impl)](std::string_view msg) mutable {
-              impl.write(msg);
-          }) {}
+          writer([impl_ptr = std::make_shared<std::decay_t<T>>(std::forward<T>(impl))] (std::string_view msg) {
+              // yet again unfortunate, mac toolchain doesnt allow not using shared_ptr
+              impl_ptr->write(msg);
+          })
+    {
+    }
 };
 
-class ConsoleSink {
+class ConsoleSink
+{
 public:
-    void write(std::string_view msg) {
+    void write(std::string_view msg)
+    {
         fmt::println("{}", msg);
     }
 };
 
-class FileSink {
+class FileSink
+{
 public:
     explicit FileSink(std::string_view filename)
-        : file_(filename.data(), std::ios::app) {}
+        : file_(filename.data(), std::ios::app)
+    {
+    }
 
-    void write(std::string_view msg) {
+    FileSink(FileSink&& other) noexcept : file_(std::move(other.file_))
+    {
+    }
+
+    FileSink(const FileSink&) = delete;
+
+    FileSink& operator=(const FileSink&) = delete;
+
+    FileSink& operator=(FileSink&&) noexcept = default;
+
+    void write(std::string_view msg)
+    {
         file_ << msg << '\n';
     }
 
@@ -57,27 +78,37 @@ private:
     std::ofstream file_;
 };
 
-class Logger {
+class Logger
+{
 public:
-    void set_level(LogLevel level) { min_level_ = level; }
+    void set_level(const LogLevel level)
+    {
+        min_level_ = level;
+    }
 
     template<typename T>
-    void add_sink(T&& sink, std::string fmt, LogLevel lvl) {
+    void add_sink(T&& sink, std::string fmt, LogLevel lvl)
+    {
         std::lock_guard lock(mutex_);
         sinks_.emplace_back(std::forward<T>(sink), std::move(fmt), lvl);
     }
 
     template<typename... Args>
-    void log(LogLevel lvl, std::string_view fmt, Args&&... args) {
-        if (lvl < min_level_) return;
+    void log(const LogLevel lvl, const std::string_view fmt, Args&&... args)
+    {
+        if (lvl < min_level_)
+            return;
 
         const auto msg = fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...);
         const auto now = std::chrono::system_clock::now();
 
         std::lock_guard lock(mutex_);
-        for (auto& sink : sinks_) {
-            if (lvl >= sink.level) {
-                // try {
+        for (auto& sink : sinks_)
+        {
+            if (lvl >= sink.level)
+            {
+                try
+                {
                     auto formatted = fmt::format(
                         fmt::runtime(sink.format),
                         fmt::arg("timestamp", now),
@@ -85,17 +116,49 @@ public:
                         fmt::arg("message", msg)
                     );
                     sink.writer(formatted);
-                //} catch (...) {}
+                }
+                catch (...)
+                {
+                }
             }
         }
     }
 
-    template<typename... Args> void trace(std::string_view fmt, Args&&... args) { log(LogLevel::Trace, fmt, std::forward<Args>(args)...); }
-    template<typename... Args> void debug(std::string_view fmt, Args&&... args) { log(LogLevel::Debug, fmt, std::forward<Args>(args)...); }
-    template<typename... Args> void info(std::string_view fmt, Args&&... args) { log(LogLevel::Info, fmt, std::forward<Args>(args)...); }
-    template<typename... Args> void warn(std::string_view fmt, Args&&... args) { log(LogLevel::Warn, fmt, std::forward<Args>(args)...); }
-    template<typename... Args> void error(std::string_view fmt, Args&&... args) { log(LogLevel::Error, fmt, std::forward<Args>(args)...); }
-    template<typename... Args> void fatal(std::string_view fmt, Args&&... args) { log(LogLevel::Fatal, fmt, std::forward<Args>(args)...); }
+    template<typename... Args>
+    void trace(std::string_view fmt, Args&&... args)
+    {
+        log(LogLevel::Trace, fmt, std::forward<Args>(args)...);
+    }
+
+    template<typename... Args>
+    void debug(std::string_view fmt, Args&&... args)
+    {
+        log(LogLevel::Debug, fmt, std::forward<Args>(args)...);
+    }
+
+    template<typename... Args>
+    void info(std::string_view fmt, Args&&... args)
+    {
+        log(LogLevel::Info, fmt, std::forward<Args>(args)...);
+    }
+
+    template<typename... Args>
+    void warn(std::string_view fmt, Args&&... args)
+    {
+        log(LogLevel::Warn, fmt, std::forward<Args>(args)...);
+    }
+
+    template<typename... Args>
+    void error(std::string_view fmt, Args&&... args)
+    {
+        log(LogLevel::Error, fmt, std::forward<Args>(args)...);
+    }
+
+    template<typename... Args>
+    void fatal(std::string_view fmt, Args&&... args)
+    {
+        log(LogLevel::Fatal, fmt, std::forward<Args>(args)...);
+    }
 
 private:
     std::vector<Sink> sinks_;
