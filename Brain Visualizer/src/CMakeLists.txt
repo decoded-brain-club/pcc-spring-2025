@@ -8,8 +8,11 @@ set(SOURCES
 
         "${CMAKE_CURRENT_SOURCE_DIR}/ui/electrode_renderer.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/ui/electrode_frame.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/ui/detail/electrode_state_manager.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/ui/frequency_band_selector.cpp"
 
         "${CMAKE_CURRENT_SOURCE_DIR}/utils/visualization_utils.cpp"
+
 
 )
 

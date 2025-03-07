@@ -1,11 +1,134 @@
-// main.cpp
+#include <imgui-SFML.h>
 #include <SFML/Graphics.hpp>
-#include <SFML/Window.hpp>
-#include <string>
 #include <vector>
-#include <unordered_map>
-#include <ui/electrode_visualization.hpp>  // Our integration with SFML
-int main() {
+#include <memory>
+#include <iostream>
+
+#include <ui/electrode_visualization.hpp>
+#include <data/interface.hpp>
+#include <data/json_file_source.hpp>
+#include <analysis/batch_analyzer.hpp>
+#include <electrode/electrode_set.hpp>
+
+#include <ui/frequency_band_selector.hpp>
+#include <ui/detail/electrode_state_manager.hpp>
+
+
+using namespace brainviz;
+
+// TODO: move this to a separate file
+class EEGVisualizer
+{
+public:
+    explicit EEGVisualizer(const ElectrodeStateManager& stateManager)
+        : m_stateManager(stateManager)
+    {
+    }
+
+    void render(sf::RenderWindow& window, const std::vector<sf::Vector2f>& electrodePoints) const
+    {
+        if (m_stateManager.is_single_band_mode())
+        {
+            render_single_band(window, electrodePoints);
+        }
+        else
+        {
+            render_all_bands(window, electrodePoints);
+        }
+    }
+
+private:
+    const ElectrodeStateManager& m_stateManager;
+
+    // TODO: make this return raw rgba values instead of sf::Color then conv to whatever
+    static sf::Color get_band_color(const data::FrequencyBand band)
+    {
+        switch (band)
+        {
+            case data::FrequencyBand::Delta:
+                return {170, 223, 237};
+            case data::FrequencyBand::Theta:
+                return {207, 230, 184};
+            case data::FrequencyBand::Alpha:
+                return {251, 247, 186};
+            case data::FrequencyBand::Beta:
+                return {255, 214, 166};
+            case data::FrequencyBand::Gamma:
+                return {248, 172, 174};
+            default:
+                return {255, 255, 255};
+        }
+    }
+
+    void render_single_band(sf::RenderWindow& window, const std::vector<sf::Vector2f>& electrodePoints) const
+    {
+        const brainviz::data::FrequencyBand selectedBand = m_stateManager.get_selected_band();
+        const int bandIndex = static_cast<int>(selectedBand);
+        const auto& visualizationData = m_stateManager.get_visualization_data();
+
+        const sf::Color color = get_band_color(selectedBand);
+
+        static constexpr float baseRadius = 30.0f;
+
+        for (const auto& [id, data] : visualizationData)
+        {
+            if (id < 0 || id >= static_cast<int>(electrodePoints.size()))
+                continue;
+
+            const sf::Vector2f& position = electrodePoints[id];
+
+            float radius = baseRadius * data.radii[bandIndex];
+
+            sf::Color electrodeColor = color;
+            electrodeColor.a = static_cast<uint8_t>(255 * data.alphas[bandIndex]);
+
+            sf::CircleShape circle(radius);
+            circle.setOrigin({radius, radius});
+            circle.setPosition(position);
+            circle.setFillColor(electrodeColor);
+            window.draw(circle);
+        }
+    }
+
+    void render_all_bands(sf::RenderWindow& window, const std::vector<sf::Vector2f>& electrodePoints) const
+    {
+        const brainviz::data::FrequencyBand selectedBand = m_stateManager.get_selected_band();
+        const auto& visualizationData = m_stateManager.get_visualization_data();
+
+        for (const auto& [id, data] : visualizationData)
+        {
+            if (id < 0 || id >= static_cast<int>(electrodePoints.size()))
+                continue;
+
+            const sf::Vector2f& position = electrodePoints[id];
+
+            for (int i = 0; i < 5; ++i)
+            {
+                const auto band = static_cast<brainviz::data::FrequencyBand>(i);
+
+                const float baseRadius = 6.0f + i * 3.0f;
+                float radius = baseRadius * data.radii[i];
+
+                sf::Color color = get_band_color(band);
+                color.a = static_cast<uint8_t>(255 * data.alphas[i]);
+
+                if (band == selectedBand)
+                {
+                    color.a = 255;
+                }
+
+                sf::CircleShape circle(radius);
+                circle.setOrigin({radius, radius});
+                circle.setPosition(position);
+                circle.setFillColor(color);
+                window.draw(circle);
+            }
+        }
+    }
+};
+
+int main()
+{
     // Get desktop resolution and set aspect ratio
     const sf::VideoMode desktopMode = sf::VideoMode::getDesktopMode();
     const unsigned int screenWidth = desktopMode.size.x;
@@ -13,15 +136,21 @@ int main() {
     const float aspectRatio = static_cast<float>(screenWidth) / static_cast<float>(screenHeight);
 
     // Create a full-screen window
-    sf::RenderWindow window(desktopMode, "The Bei Project");
+    sf::RenderWindow window(desktopMode, "BrainViz EEG Visualizer",
+                            sf::Style::Default,
+                            sf::State::Windowed,
+                            sf::ContextSettings(0, 0, 8));
+
     window.setFramerateLimit(144);
     const sf::Vector2u windowSize = window.getSize();
+
+    ImGui::SFML::Init(window);
 
     // Head variables
     const double HEAD_RADIUS = (windowSize.y / 2.0) * 0.7;
     const double CIRCLE_RADIUS = HEAD_RADIUS * 1.2;
 
-    // create the set
+    // Create the 64-channel electrode set
     brainviz::electrode::ElectrodeSet electrodeSet(brainviz::electrode::SystemType::System64);
 
     // Head (outer circle)
@@ -34,80 +163,88 @@ int main() {
         static_cast<float>(windowSize.y / 2.0 - head.getRadius())
     });
 
-    // Plotting electrode data
-    std::unordered_map<std::string, std::vector<double>> sampleData = {
-        {"Fp1", {0.5, 1.2, -0.8, 3.4, -2.1}},
-        {"Fp2", {1.1, 0.7, -1.5, 2.3, -3.0}},
-        {"O1", {-0.4, 2.0, 1.7, -0.6, 3.1}},
-        {"O2", {2.2, -1.1, 0.4, 1.5, -0.9}}
-    };
+    std::cout << "Loading EEG data from JSON file..." << std::endl;
 
-    std::vector<std::pair<sf::Vector2f, std::vector<double>>> dereferencedData;
-    int moment = 0;
+    auto dataSource = std::make_unique<brainviz::data::JSONFileSource>("data.json");
+    if (!dataSource->open())
+    {
+        std::cerr << "Error: Failed to open data.json file" << std::endl;
+        return 1;
+    }
 
-    // Prepare data visualization points
+    auto eegData = dataSource->load_data();
+    if (!eegData)
+    {
+        std::cerr << "Error: Failed to load data from data.json" << std::endl;
+        return 1;
+    }
+
+    std::cout << "JSON data loaded successfully" << std::endl;
+
+    std::cout << "Processing EEG data..." << std::endl;
+    brainviz::analysis::BatchAnalyzer analyzer(*eegData, 256, 75.0);
+    analyzer.process_all_channels();
+    std::cout << "Data processing complete" << std::endl;
+
+    FrequencyBandSelector bandSelector;
+
+    ElectrodeStateManager stateManager(electrodeSet, analyzer);
+
+    EEGVisualizer visualizer(stateManager);
+
     std::vector<sf::Vector2f> points;
 
-    // precompute the electrode positions for the current window size, this is done once and updated when the window is resized
     brainviz::visualization::draw_electrodes(
         window, electrodeSet, points, HEAD_RADIUS, CIRCLE_RADIUS, windowSize
     );
 
-    // Process sample data
-    for (const auto& [channel_name, values] : sampleData) {
-        // Find electrode by name
-        auto electrode_result = electrodeSet.find(channel_name);
+    sf::Clock deltaClock;
 
-        if (electrode_result) {
-            const auto& electrode = electrode_result.value();
-            int id = electrode.id();
+    while (window.isOpen())
+    {
+        // Process events
+        while (const std::optional<sf::Event> event = window.pollEvent())
+        {
+            ImGui::SFML::ProcessEvent(window, *event);
 
-            if (id >= 0 && id < points.size()) {
-                const sf::Vector2f& position = points[id];
-                dereferencedData.emplace_back(position, values);
-            }
-        }
-    }
-
-    while (window.isOpen()) {
-        while (const std::optional<sf::Event> event = window.pollEvent()) {
-            if (event->is<sf::Event::Closed>()) {
+            if (event->is<sf::Event::Closed>())
+            {
                 window.close();
             }
-            if (event->is<sf::Event::Resized>()) {
+            if (event->is<sf::Event::Resized>())
+            {
                 brainviz::visualization::enforce_aspect_ratio(window, aspectRatio);
             }
         }
 
-        window.clear();
+        const sf::Time dt = deltaClock.restart();
+        ImGui::SFML::Update(window, dt);
+
+        const float deltaTimeSeconds = dt.asSeconds();
+
+        stateManager.update(deltaTimeSeconds, bandSelector.get_animation_speed());
+
+        bandSelector.set_frame_info(stateManager.get_frame_index(), stateManager.get_max_frame_index());
+
+        bandSelector.render();
+
+        window.clear({20, 20, 30});
+
         window.draw(head);
 
-        // draw the electrodes
         brainviz::visualization::draw_electrodes(
             window, electrodeSet, points, HEAD_RADIUS, CIRCLE_RADIUS, windowSize
         );
-
-        // draw the lines
         brainviz::visualization::draw_frame(window, brainviz::electrode::SystemType::System64, points);
 
-        for (const auto& [position, values] : dereferencedData) {
-            if (!values.empty()) {
-                const auto intensity = static_cast<float>(values[moment % values.size()]);
-                const float radius = std::max(2.0f, 10.0f + intensity * 2.0f); // Min size 2, max influenced by intensity
+        visualizer.render(window, points);
 
-                // Draw circle
-                sf::CircleShape amp(radius);
-                amp.setFillColor(sf::Color::Red);
-                amp.setPosition({position.x - radius, position.y - radius});
-                window.draw(amp);
-            }
-        }
-
-        if (!dereferencedData.empty() && !dereferencedData.front().second.empty()) {
-            moment = (moment + 1) % static_cast<int>(dereferencedData.front().second.size());
-        }
+        ImGui::SFML::Render(window);
 
         window.display();
     }
+
+    ImGui::SFML::Shutdown();
+
     return 0;
 }
