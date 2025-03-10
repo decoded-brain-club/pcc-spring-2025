@@ -23,9 +23,9 @@ The ClearCortex project was conceived, designed, developed, and managed by the f
     * Visualizing the processed data
     * UI design and implementation
     * Architecture agnostic build system
-    * Numerous frontend and backennd pipeline optimizations
+    * Numerous frontend and backend pipeline optimizations
 * **Management Contributions**:
-    * Code design desicions regarding technical project architecture
+    * Code design decisions regarding technical project architecture
 
 ## Project Events
 
