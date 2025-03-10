@@ -1,7 +1,7 @@
 set(SOURCES
         # "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp"
-        "${CMAKE_CURRENT_SOURCE_DIR}/ui.cpp"
-        # "${CMAKE_CURRENT_SOURCE_DIR}/imgui_basic.cpp"
+        # "${CMAKE_CURRENT_SOURCE_DIR}/ui.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/imgui_basic.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/data/json_file_source.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/data/streaming_source.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/analysis/batch_analyzer.cpp"

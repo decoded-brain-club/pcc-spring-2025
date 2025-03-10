@@ -228,6 +228,7 @@ int main()
 
         bandSelector.render();
 
+
         window.clear({20, 20, 30});
 
         window.draw(head);
