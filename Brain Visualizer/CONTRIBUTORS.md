@@ -40,7 +40,7 @@ The ClearCortex project was conceived, designed, developed, and managed by the f
 
 ## Code Development
 
-* [2/27/25]: Add initial implementation of BrainViz project with data parsing by Sightem
+* [2/27/25]: Add initial implementation of ClearCortex project with data parsing by Sightem
     * Restructure the project
     * Fix the calls to println in main
     * Use the EEGData interface in main for demo
