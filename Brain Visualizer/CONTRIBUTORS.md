@@ -72,6 +72,7 @@ The ClearCortex project was conceived, designed, developed, and managed by the f
 * [3/7/25]: Meeting with Core Development Team to discuss project plan
 * [3/7/25]: Meeting with advisor and mentor
 * [3/7/25]: Research and design of data processing pipeline by Malak Al Nawar and PKcalifornia
+* [3/11/25]: Seekbar widget Implemented, not yet integrated by Sightem
 
 ## Meeting Organization
 

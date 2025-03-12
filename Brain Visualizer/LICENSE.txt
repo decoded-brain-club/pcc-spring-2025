@@ -1,5 +1,3 @@
-# ClearCortex Software License
-
 This software is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0) with additional terms as specified below.
 
 					GNU AFFERO GENERAL PUBLIC LICENSE
@@ -621,51 +619,51 @@ Program, unless a warranty or assumption of liability accompanies a
 copy of the Program in return for a fee.
 
                      END OF TERMS AND CONDITIONS
-					 
+
 						 ADDITIONAL TERMS
 As permitted by Section 7 of the GNU Affero General Public License
 version 3.0, the following additional terms are applied to the ClearCortex
 software:
 
-  13. Mandatory Attribution. 
-  
-  Any use, distribution, modification, or public deployment of this software 
+  13. Mandatory Attribution.
+
+  Any use, distribution, modification, or public deployment of this software
 or derivatives must prominently display in both user interfaces and documentation:
-  
+
    "ClearCortex was conceived, designed, developed, and managed by the
 individuals listed in CONTRIBUTORS.md. Copyright © 2025 Original
 Developers of ClearCortex."
 
   14. Management Credit Restriction.
-  
+
   Notwithstanding any other provision of this License, you may not misrepresent
 the origin of this software nor claim management, oversight, direction, or equivalent
 contributions to this project unless you directly participated in technical decision-making
-as documented in the project's commit history and CONTRIBUTORS.md file. This includes, 
-but is not limited to, statements in marketing materials, presentations, publications, 
+as documented in the project's commit history and CONTRIBUTORS.md file. This includes,
+but is not limited to, statements in marketing materials, presentations, publications,
 resumes, or verbal claims.
 
   15. Contribution Accuracy.
-  
-  Any representation of the development process must accurately reflect the actual 
-contributors and their roles as documented in CONTRIBUTORS.md. This is a condition 
+
+  Any representation of the development process must accurately reflect the actual
+contributors and their roles as documented in CONTRIBUTORS.md. This is a condition
 of your license to use the software.
 
-  16. Derivative Works. 
-  
+  16. Derivative Works.
+
   All derivative works must maintain these additional terms alongside the AGPL-3.0 license terms.
 
-  17. Legal Binding. 
-  
+  17. Legal Binding.
+
   These additional terms are incorporated into this license agreement pursuant to
-Section 7 of the AGPL-3.0 and are deemed a legally binding part of the license. 
+Section 7 of the AGPL-3.0 and are deemed a legally binding part of the license.
 Any use, reproduction, or distribution of this software that fails to adhere to
 these additional terms constitutes a violation of this license.
 
   18. Team Identification Rights.
-  
-  The original development team, as defined by the individuals who created the first public 
-version of this software, maintains the right to update their collective identification 
+
+  The original development team, as defined by the individuals who created the first public
+version of this software, maintains the right to update their collective identification
 in future releases while preserving individual contributor attributions. Such updates
 will be reflected in CONTRIBUTORS.md and shall be binding on all licensees.
 
@@ -722,7 +720,7 @@ This software includes third-party components under the following licenses:
 
   19. GPL-2.0 LICENSE COMPONENTS:
   - kfrlib
-  
+
   20. ZLIB LICENSE COMPONENTS:
   - SFML
 
@@ -732,9 +730,9 @@ that governs this software. The complete text of each third-party license is
 included in the respective component's source code.
 For commercial licensing options that may provide exemptions from certain
 AGPL requirements, contact <CONTACT INFO>
- 
 
-All licenses are compatible with the GNU Affero General Public License v3.0 
-that governs this software. The complete text of each third-party license is 
-included in the respective component's source code. For commercial licensing 
+
+All licenses are compatible with the GNU Affero General Public License v3.0
+that governs this software. The complete text of each third-party license is
+included in the respective component's source code. For commercial licensing
 options that may provide exemptions from certain AGPL requirements, contact <CONTACT INFO>
