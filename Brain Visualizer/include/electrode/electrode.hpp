@@ -76,7 +76,7 @@ namespace brainviz::electrode
         double m_azimuth; // phi in degrees
 
         FORCE_INLINE
-        [[nodiscard]] static constexpr double deg_to_rad(const double degrees) noexcept
+        static constexpr double deg_to_rad(const double degrees) noexcept
         {
             return degrees * std::numbers::pi / 180.0;
         }

@@ -130,7 +130,7 @@ namespace brainviz
                 }
 
                 // TODO: fow now this is what we set it too, realistically we should get this from the backend
-                eegData->m_samplingRate = 250.0;
+                eegData->m_samplingRate = 128.0;
 
                 return eegData;
             }

@@ -39,7 +39,7 @@ namespace brainviz::data
     public:
         using ChannelData = tsl::robin_map<std::string, std::vector<double>>;
 
-        double m_samplingRate = 250.0; // default sampling rate, Hz
+        double m_samplingRate = 128.0; // default sampling rate, Hz
 
         [[nodiscard]] const ChannelData& get_channels() const
         {

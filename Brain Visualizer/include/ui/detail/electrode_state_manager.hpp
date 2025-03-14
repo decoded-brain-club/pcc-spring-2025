@@ -33,6 +33,23 @@ public:
     [[nodiscard]] const tsl::robin_map<int, ElectrodeVisualizationData>&
     get_visualization_data() const;
 
+    [[nodiscard]] brainviz::electrode::ElectrodeSet& get_electrode_set() const
+    {
+        return m_electrodeSet;
+    }
+
+    [[nodiscard]] brainviz::analysis::BatchAnalyzer& get_analyzer() const
+    {
+        return m_analyzer;
+    }
+
+    [[nodiscard]] size_t get_window_size() const
+    {
+        return m_windowSize;
+    }
+
+    [[nodiscard]] size_t compute_time_index(size_t desired_frame_index) const;
+
 private:
     // state tracking for lerping
     struct ElectrodeState
@@ -67,7 +84,6 @@ private:
 
     void update_electrode_states();
 
-    [[nodiscard]] size_t compute_time_index(size_t desired_frame_index) const;
 
     void update_visualization_data();
 

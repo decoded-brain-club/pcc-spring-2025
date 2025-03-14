@@ -48,6 +48,15 @@ FetchContent_Declare(ImGui
 FetchContent_MakeAvailable(ImGui)
 FetchContent_GetProperties(ImGui SOURCE_DIR IMGUI_DIR)
 
+FetchContent_Declare(ImPlot
+        GIT_REPOSITORY https://github.com/epezent/implot
+        GIT_TAG 193b9d8f92c4a437e84182b171f1ae266e72321f
+        GIT_SHALLOW ON
+        EXCLUDE_FROM_ALL
+        SYSTEM)
+FetchContent_MakeAvailable(ImPlot)
+FetchContent_GetProperties(ImPlot SOURCE_DIR IMPLOT_DIR)
+
 set(IMGUI_SFML_FIND_SFML OFF)
 FetchContent_Declare(ImGui-SFML
         GIT_REPOSITORY https://github.com/SFML/imgui-sfml
@@ -56,6 +65,15 @@ FetchContent_Declare(ImGui-SFML
         EXCLUDE_FROM_ALL
         SYSTEM)
 FetchContent_MakeAvailable(ImGui-SFML)
+
+add_library(ImPlot STATIC
+        ${IMPLOT_DIR}/implot.cpp
+        ${IMPLOT_DIR}/implot_items.cpp
+)
+
+target_include_directories(ImPlot PUBLIC ${IMPLOT_DIR})
+
+target_link_libraries(ImPlot PUBLIC ImGui-SFML::ImGui-SFML)
 
 include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/include

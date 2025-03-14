@@ -72,6 +72,16 @@ namespace brainviz::analysis
             return m_sampling_rate / m_window_size;
         }
 
+        [[nodiscard]] double get_sampling_rate() const
+        {
+            return m_sampling_rate;
+        }
+
+        [[nodiscard]] const data::EEGData& get_eeg_data() const
+        {
+            return m_eeg_data;
+        }
+
     private:
         const data::EEGData& m_eeg_data;
         double m_sampling_rate;
