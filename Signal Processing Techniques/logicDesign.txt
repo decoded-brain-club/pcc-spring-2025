@@ -1,0 +1,140 @@
+=============
+NEURON CLASS    
+=============
+"""
+Contains classes of different types of neurons
+"""
+
+
+Neuron Class
+    """
+    Parent class that can return description of child classes
+    """
+
+MultipolarNeuron
+
+    Neuron Classification
+        Excitatory types: PYRAMIDAL, stellate, etc.
+        Inhibitory types: 
+
+    Dendrite characteristics
+        Count
+        Apical length: length of "peak" dendrite for PYRAMIDAL
+        Basal length: length of "base" dendrites for PYRAMIDAL
+        Diameter
+        Density of spines: number of spines per surface area of dendrite
+        Total spines
+
+    Dendrite functions
+
+    Membrane characteristics
+        Thickness
+        Sodium channel density
+        Potassium channel density
+        Calcium channel density
+        Magnesium channel density
+
+    Membrane functions
+        Hodgkin Huxley Model for membrane potential changes
+            Ion transportation 
+            Stochastic channel opening
+
+    Soma characteristics
+        Diameter
+        Volume
+        Membrane thickness
+
+    Soma functions
+        Leaky Integrate-and-Fire Model for integration of inputs
+
+    Axon characteristics
+        Length
+        Diameter
+        Synapse count
+
+    Axon functions
+        """
+        Note: These functions are technically of the axon hillock.
+        """
+        Integration of synaptic potentials
+        (Reference Neuronal Dynamics text)
+
+        Firing of action potential
+        (assumed to be a linear process)
+
+    Myelin characteristics
+        isMyelinated
+        Thickness
+        Internode Length
+        Node of Raniver Length 
+
+
+
+
+
+====
+MAIN
+====
+"""
+Simulates a feedforward excitation circuit with three pyramidal neurons.
+This models the propagation of information across multiple regions of the 
+brain.
+"""
+
+1. Instantiate presynaptic neuron
+
+2. Instantiate intermediary neuron
+
+2. Instantiate post-synaptic neuron
+
+3. Access JSON with graph and configure arrangement of neurons
+   Model feedfoward excitation circuit first
+
+4. Let presynaptic neuron discharge an action potential
+
+5. Let presynaptic neuron release virtual neurotransmitters
+
+6. Let intermediary neuron receive virtual neurotransmitters
+
+7. Let intermediary neuron integrate electrical signals
+        Will need to check if this meets activation threshold
+
+8. Let intermediary neuron discharge an action potential
+
+9. Let intermediary neuron release virutal neurotransmitters
+
+10. Let postsynaptic neuron receive virtual neurotransmitters
+
+11. Let postsynaptic neuron integrate electrical signals
+        Will need to check if this meets activation threshold
+
+
+
+====
+JSON
+====
+2.4 Pettabytes 
+
+Euclidean space
+    x
+    y
+    z
+
+ID
+
+Connections (range from 5000 - 10000)
+
+Axon Connections (1)
+
+Look into lazy loading
+
+Investigate terminal buttons / neural connectionsf
+
+
+
+=====
+NOTES
+=====
+
+I might need to construct a .py file that contains every possible
+neural circuit...
